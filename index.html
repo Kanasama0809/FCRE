@@ -159,6 +159,27 @@ select option{color:#000;}
 .sec.foldable>h2::after{content:"＋";font-family:"Oswald",sans-serif;font-weight:700;color:var(--amber);font-size:20px;margin-left:10px;}
 .sec.foldable.open>h2::after{content:"－";}.sec.foldable.open>h2{margin-bottom:12px;}
 .sec.foldable:not(.open)>.secbody{display:none;}
+.insum{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:4px 0 10px;list-style:none;}
+.inbadge{font-family:"Oswald",sans-serif;font-size:10px;font-weight:700;color:var(--ink);background:var(--amber);border-radius:2px;text-align:center;padding:1px 4px;line-height:1.5;}
+.picklist li.phead{border-top:1px solid var(--line);margin-top:6px;padding:12px 4px 2px;font-family:"Oswald","Zen Kaku Gothic New",sans-serif;font-size:11px;color:rgba(242,245,238,.55);}
+.picklist li.phead .rp{color:var(--amber);font-size:12px;font-weight:700;margin-right:10px;}
+.picklist li.inrow{display:grid;grid-template-columns:30px 40px 1fr auto;gap:9px;align-items:center;padding:8px 4px;background:rgba(255,194,26,.12);border-left:3px solid var(--amber);margin:2px 0;font-size:14px;}
+.picklist li.inrow .rp{font-family:"Oswald",sans-serif;font-size:11.5px;font-weight:700;color:var(--amber);}
+.picklist li.inrow .rv{font-family:"Oswald",sans-serif;font-weight:700;font-size:16px;color:var(--amber);}
+.picklist li.inrow small{display:block;font-size:11px;color:rgba(242,245,238,.6);}
+.picklist .pick{border-top:0;}
+.stars{position:relative;display:inline-block;font-size:11px;color:rgba(242,245,238,.22);line-height:1;vertical-align:-1px;}
+.stars::before{content:"★★★★★";}.stars i{position:absolute;left:0;top:0;overflow:hidden;white-space:nowrap;color:var(--amber);}.stars i::before{content:"★★★★★";}
+.stv{font-family:"Oswald",sans-serif;font-weight:700;font-size:10.5px;color:rgba(242,245,238,.7);margin-left:4px;}
+.warn{background:rgba(208,65,44,.18);border-left:3px solid var(--clay);padding:10px 12px;font-size:13px;margin-top:12px;}
+.dlg{margin-top:10px;font-weight:400;font-size:14px;line-height:1.8;}
+.pomatch{border-top:1px solid var(--line);padding:13px 0;}
+.pomatch h3{font-family:"Oswald","Zen Kaku Gothic New",sans-serif;font-weight:500;font-size:11.5px;letter-spacing:.1em;color:var(--amber);margin:0 0 7px;}
+.pomatch .line{display:grid;grid-template-columns:1fr 62px 1fr;gap:8px;align-items:center;font-size:14px;}
+.pomatch .line .r{text-align:right;}.pomatch .sc{font-size:21px;text-align:center;color:var(--chalk);}
+.pomatch .rk{font-family:"Oswald",sans-serif;font-size:10.5px;color:rgba(242,245,238,.55);display:block;}
+.pomatch .win{font-weight:900;color:var(--amber);}.pomatch .note{font-size:12px;color:rgba(242,245,238,.62);margin-top:7px;}
+#s-po .pomatch{animation:deal .32s ease-out;}@keyframes deal{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
 .growth{margin:10px 0 0;padding:0;list-style:none;font-size:13px;}
 .growth li{padding:6px 0;border-bottom:1px solid rgba(242,245,238,.12);}
 .up{color:var(--amber);}.dn{color:#F09A8D;}
@@ -205,6 +226,8 @@ select option{color:#000;}
  </ol>
  <div id="t-cont" style="display:none"><button class="btn cta" id="btn-continue">つづきから</button><p class="sub" id="t-contsub"></p></div>
  <button class="btn cta" id="btn-start">4部から始める</button>
+ <button class="btn ghost small" id="btn-import" style="margin-top:10px">セーブデータを読み込む</button>
+ <input type="file" id="i-import" accept=".json,application/json" hidden>
 </section>
 
 <section class="screen" id="s-draft">
@@ -223,10 +246,12 @@ select option{color:#000;}
   <label class="fld">シーズンの方針<select id="f-pol"></select></label>
   <div class="tacdesc" id="f-tacdesc"></div>
   <div class="power" id="f-power"></div>
+  <div id="f-warn"></div>
   <div class="pitchbox" id="f-pitch"></div>
   <div class="btnrow"><button class="btn ghost small" id="btn-auto">おまかせ配置</button></div>
   <div id="f-assign"></div>
   <button class="btn cta" id="btn-fdone">この布陣で開幕へ</button>
+  <button class="btn ghost small" id="btn-redraft" style="margin-top:10px;display:none">メンバーを引き直す</button>
  </div>
 </section>
 
@@ -239,15 +264,22 @@ select option{color:#000;}
  </div>
 </section>
 
+<section class="screen" id="s-po">
+ <div class="sec"><h2 id="po-title">昇格プレーオフ</h2><p class="sub" id="po-desc"></p><div id="po-log"></div>
+  <button class="btn cta" id="btn-po-next" style="display:none">結果を見る</button></div>
+</section>
+
 <section class="screen" id="s-result">
  <div class="verdict" id="r-verdict"></div>
  <div class="sec"><h2>順位表</h2><div class="chips" id="r-divtabs"></div><div class="overflow"><table class="tbl" id="r-table"></table></div>
+  <h3 class="subh" id="r-tsdivtitle">チーム成績の比較</h3><div class="overflow"><table class="tbl" id="r-tsdiv"></table></div>
   <h3 class="subh">プレーオフ</h3><div id="r-po"></div>
   <h3 class="subh">個人ランキング</h3><div class="chips" id="r-rktabs"></div><table class="tbl" id="r-scorers"></table></div>
  <div class="sec"><h2>ベストイレブン</h2><div class="chips" id="r-b11tabs"></div><div id="r-b11"></div></div>
  <div class="sec"><h2>カップ戦・欧州</h2><div class="chips" id="r-cuptabs"></div><div id="r-cup"></div></div>
  <div class="sec"><h2>チーム成績</h2><p class="sub" id="r-setup"></p><div class="tstats" id="r-tstats"></div></div>
  <div class="sec"><h2>選手成績</h2><div class="chips" id="r-sqtabs"></div><div class="overflow"><table class="tbl" id="r-squad"></table></div></div>
+ <div class="sec"><h2>試合結果</h2><label class="fld" id="r-logsel" style="display:none">シーズン<select id="r-logyear"></select></label><div class="log" id="r-log" style="max-height:52vh"></div></div>
  <div class="sec"><h2>クラブの歩み</h2><table class="tbl" id="r-history"></table></div>
  <div class="sec"><h2>クラブの殿堂</h2><div id="r-hof"></div></div>
  <button class="btn cta" id="btn-off">オフシーズンへ</button>
@@ -260,7 +292,7 @@ select option{color:#000;}
 
 <section class="screen" id="s-off">
  <div class="sec"><h2 id="o-title">オフシーズン</h2><div id="o-summary"></div></div>
- <div class="sec" id="o-offer-sec" style="display:none"><h2>移籍オファー</h2><p class="sub">残留交渉をするか、送り出すかを選びます。送り出すと、見返りで獲得候補の質が上がります。交渉に失敗すると見返りは半分です。</p><div id="o-offers"></div>
+ <div class="sec" id="o-offer-sec" style="display:none"><h2>移籍オファー・レンタル満了</h2><p class="sub">残留交渉をするか、送り出すかを選びます。送り出すと、見返りで獲得候補の質が上がります。交渉に失敗すると見返りは半分です。</p><div id="o-offers"></div>
   <p class="sub" id="o-wait" style="color:var(--amber)">すべてのオファーに答えると、獲得候補が届きます。</p></div>
  <div class="sec"><h2>現有戦力</h2><p class="sub" id="o-squadsub"></p><ul class="roster" id="o-squad"></ul></div>
  <div class="sec" id="o-cand-sec"><h2>獲得候補</h2><p class="sub">獲得候補・アカデミー・穴埋め候補から選びます。</p><div id="o-cands"></div></div>
@@ -291,10 +323,10 @@ select option{color:#000;}
 <div class="cm" id="cm" hidden><div class="cm-box"><p id="cm-msg"></p><div class="btnrow"><button class="btn ghost small" id="cm-no">やめる</button><button class="btn small" id="cm-yes">OK</button></div></div></div>
 
 <div class="gfoot">
- <div class="btnrow" id="gf-game" style="display:none"><button class="btn ghost small danger" id="btn-resign">監督辞任</button></div>
+ <div class="btnrow" id="gf-game" style="display:none"><button class="btn ghost small" id="btn-export">セーブを書き出す</button><button class="btn ghost small danger" id="btn-resign">監督辞任</button></div>
  <a class="btn ghost small" href="https://x.com/kanasama_united" target="_blank" rel="noopener" style="margin-top:10px">感想・不具合報告はこちら（X @kanasama_united）</a>
  <p class="disc">このゲームはフィクションです。登場するクラブ・団体・人物の名称は架空のものであり、実在のものとは関係ありません。</p>
- <p class="ver">Football Champion Road E　v0.3.2</p>
+ <p class="ver">Football Champion Road E　v0.4.1</p>
 </div>
 </div>
 <script>
@@ -557,7 +589,7 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return
 function shuffle(a){for(var i=a.length-1;i>0;i--){var r=rnd(i+1),t=a[i];a[i]=a[r];a[r]=t;}return a;}
 function pois(l){if(l<=0)return 0;var L=Math.exp(-l),k=0,p=1;do{k++;p*=Math.random();}while(p>L);return k-1;}
 function coreOf(star){return 59+6*star;}
-var VERSION='v0.3.2',SAVE_KEY='fcre-save-v1';
+var VERSION='v0.4.1',SAVE_KEY='fcre-save-v1';
 var DIVJ={1:'プレミア',2:'2部',3:'3部',4:'4部',5:'ナショナルリーグ'};
 function divName(d){return DIVJ[d];}
 
@@ -2229,7 +2261,7 @@ function wire(){
  $('btn-tolist').onclick=openRelease;
  $('rl-list').onclick=function(e){var b=e.target.closest('.pick');if(!b)return;var id=+b.getAttribute('data-id'),at=S.releasing.indexOf(id);
   if(at>-1){S.releasing.splice(at,1);b.classList.remove('on');}else{if(S.releasing.length>=S.releaseNeed)return;S.releasing.push(id);b.classList.add('on');}updateRel();};
- $('btn-release').onclick=function(){commitOffseason(S.releasing);S.releasing=[];autoAssign();openForm();};
+ $('btn-release').onclick=function(){if(!S.releasing||S.releasing.length!==S.releaseNeed)return;commitOffseason(S.releasing);S.releasing=[];autoAssign();openForm();};
  $('btn-rlback').onclick=function(){show('s-off');};
  $('btn-resign').onclick=function(){ask('本当に監督を辞任しますか？<br>セーブデータは消え、最初からになります。','辞任する',function(){if(timer){clearInterval(timer);timer=null;}showBye('resign');});};
  $('btn-newgame').onclick=function(){location.reload();};
@@ -2289,6 +2321,253 @@ function makeFoldable(){
  });
 }
 function applyFold(){document.querySelectorAll('#s-result .sec.foldable').forEach(function(sec){var ix=sec.getAttribute('data-fold');sec.classList.toggle('open',!!(S.ui&&S.ui['f'+ix]));});}
+/* ============ FCRJ移植 第3弾 ============ */
+function tenure(p){return Math.max(1,S.year-(p.joined||S.year)+1)+'年目';}
+
+/* ---- 再描画でページのトップに飛ばない ---- */
+show=function(id){
+ var already=$(id).classList.contains('on');
+ document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on');});
+ $(id).classList.add('on');if(!already)window.scrollTo(0,0);
+ $('gf-game').style.display=(S.started&&id!=='s-title'&&id!=='s-bye')?'flex':'none';
+};
+
+/* ---- 一覧に在籍年数と通算得点 ---- */
+rosterHTML=function(list,showXI){
+ var h='',cur='';
+ sortPos(list).forEach(function(p){
+  if(p.pos!==cur){h+='<li class="rhead"><span class="rp">'+p.pos+'</span><span>'+POSNAME[p.pos]+'</span><span></span></li>';cur=p.pos;}
+  var xi=showXI&&S.slots.indexOf(p.id)>-1;
+  h+='<li data-pid="'+p.id+'"><span class="rp"></span><span>'+esc(shortName(p.name))+'<small>'+esc(natTxt(p))+'・'+p.age+'歳'+(p.pos2?'・'+p.pos2+'も可':'')
+   +(showXI?(xi?'・スタメン':'・控え')+'・'+tenure(p)+'　通算'+((p.c&&p.c.g)||0)+'得点':'')+(p.loan?'・レンタル':'')+(p.acad?'・アカデミー':'')+'</small></span><span class="rv">'+p.ovr+'</span></li>';
+ });
+ return h;
+};
+
+/* ---- 放出画面（FCRJ形式：ポジションごとに加入選手を並べる） ---- */
+openRelease=function(){
+ var need=S.picked.length+S.loanPicked.length-S.holes;
+ if(need<=0){commitOffseason([]);autoAssign();openForm();return;}
+ S.releasing=[];S.releaseNeed=need;
+ var ins=S.picked.map(function(i){return S.cands[i];}).concat(S.loanPicked.map(function(i){return S.loanCands[i];}));
+ $('rl-sub').textContent='獲得'+ins.length+'人'+(S.holes?'－穴'+S.holes+'人':'')+'で、'+need+'人を放出します。黄色の「IN」が今回獲得する選手です。同じポジションの選手と比べて選べます。';
+ var h='<li class="insum"><span class="inbadge">IN</span>'+sortPos(ins).map(function(p){return '<span class="inchip">'+posLabel(p)+' '+esc(shortName(p.name))+' <b>'+p.ovr+'</b></span>';}).join('')+'</li>';
+ var sq=sortPos(S.squad),inS=sortPos(ins);
+ POSES.forEach(function(ps){
+  var mine=sq.filter(function(p){return p.pos===ps;}),inc=inS.filter(function(p){return p.pos===ps;});
+  if(!mine.length&&!inc.length)return;
+  h+='<li class="phead"><span class="rp">'+ps+'</span>'+POSNAME[ps]+'</li>';
+  inc.forEach(function(q){var tg=tags(q).map(function(t){return t[0];}).join('・');
+   h+='<li class="inrow" data-pid="'+q.id+'"><span class="inbadge">IN</span><span class="rp">'+posLabel(q)+'</span><span>'+esc(shortName(q.name))+'<small>'+q.age+'歳'+(tg?'・'+esc(tg):'')+'</small></span><span class="rv">'+q.ovr+'</span></li>';});
+  mine.forEach(function(p){
+   h+='<li><button class="pick" data-id="'+p.id+'"><span class="box"></span><span class="rp">'+posLabel(p)+'</span><span>'+esc(shortName(p.name))+'<small>'+p.age+'歳・'+(S.slots.indexOf(p.id)>-1?'スタメン':'控え')+'・'+tenure(p)+'　通算'+((p.c&&p.c.g)||0)+'得点'+(p.loan?'・レンタル':'')+'</small></span><span class="rv">'+p.ovr+'</span></button></li>';
+  });
+ });
+ $('rl-list').innerHTML=h;updateRel();show('s-release');
+};
+
+/* ---- レンタル満了は「買い取り交渉」としてオファー欄に出す ---- */
+function loanChance(p){
+ var C=CFG.loan,ls=p.ls||blank(),rate=Math.min(1,(ls.start||0)/Math.max(1,S.lastRounds||46));
+ var score=function(q){var s=q.ls||blank();return q.pos==='GK'?s.cs*3+s.start*.1:s.g*3+s.a*2+s.cs*.8+s.start*.1;};
+ var r=S.squad.slice().sort(function(a,b){return score(b)-score(a);}).indexOf(p)+1;
+ return clamp(C.base+rate*C.play+(r<=3?C.top3:r<=7?C.top7:0)+(p.loan.star>=C.bigStar?C.bigParent:0),C.pmin,C.pmax);
+}
+loanResolve=function(){return [];};
+var _genOffers=genOffers;
+genOffers=function(){
+ var lb=S.squad.filter(function(p){return p.loan;}).map(function(p){
+  var ch=loanChance(p);return {pid:p.id,name:p.name,club:p.loan.club,area:'loanback',ch:ch,lv:ch>=.6?'hi':ch>=.35?'mid':'lo',fee:0,state:'open'};});
+ return lb.concat(_genOffers());
+};
+var _renderOffers=renderOffers;
+renderOffers=function(){
+ _renderOffers();
+ var boxes=$('o-offers').querySelectorAll('.offer');
+ (S.offers||[]).forEach(function(o,i){
+  if(o.area!=='loanback'||!boxes[i])return;
+  var p=pById(o.pid)||o.snap,b=boxes[i];
+  var h='<div class="who">'+esc(o.name)+'<small>'+(p?p.pos+'・'+p.age+'歳・総合'+p.ovr+'・昨季'+((p.ls&&p.ls.start)||0)+'試合先発 '+((p.ls&&p.ls.g)||0)+'得点':'')+'</small></div>'
+   +'<div class="from">🔁 '+esc(o.club)+'からのレンタル期間が満了<span class="tierb">レンタル満了</span></div>'
+   +'<div style="font-size:13px">買い取りの見込み：<span class="lv '+o.lv+'">'+LVJ[o.lv]+'</span></div>';
+  if(o.state==='open')h+='<div class="btnrow" style="margin-top:10px"><button class="btn small" data-act="keep" data-i="'+i+'">買い取り交渉</button><button class="btn ghost small" data-act="let" data-i="'+i+'">返却する</button></div>';
+  else h+='<div class="res">'+{stay:'✅ 買い取り成立。完全移籍でチームに残ります。',left:'👋 '+esc(o.club)+'へ返却しました。',fail:'❌ 交渉決裂。'+esc(o.club)+'へ戻ります。'}[o.state]+'</div>';
+  b.innerHTML=h;b.classList.add('ov');
+ });
+};
+var _resolveOffer=resolveOffer;
+resolveOffer=function(i,act){
+ var o=S.offers[i];if(!o||o.state!=='open')return;
+ if(o.area!=='loanback')return _resolveOffer(i,act);
+ var p=pById(o.pid);
+ if(act==='keep'&&Math.random()<o.ch){o.state='stay';p.route=p.loan.club+'から完全移籍';p.loan=null;p.joined=S.year;}
+ else{o.state=act==='keep'?'fail':'left';o.snap=JSON.parse(JSON.stringify(p));S.squad.splice(S.squad.indexOf(p),1);}
+ if(S.offers.every(function(x){return x.state!=='open';})){S.holes=Math.max(0,CFG.squad-S.squad.length);genCands();}
+ saveGame('off');renderOff();
+};
+
+/* ---- 今オフ去った選手のまとめ（FCRJのshowLeaveDialog） ---- */
+function missingWarn(){
+ var need={GK:1,CB:2,SB:2,CM:2,CF:1},w=[];
+ for(var k in need){var n=S.squad.filter(function(p){return aptP(p,k)===3;}).length;if(n<need[k])w.push(k+'が'+(n===0?'1人もいません':'あと'+(need[k]-n)+'人必要です'));}
+ return w;
+}
+function leaveDialog(){
+ var O=S.off||{},ret=O.ret||[],gone=(S.offers||[]).filter(function(o){return o.state==='left'||o.state==='fail';});
+ if(!ret.length&&!gone.length&&!(O.back||[]).length&&!(S.hofNew||[]).length)return;
+ var h='<b style="font-size:17px">今オフ、'+(ret.length+gone.length)+'人が去りました</b>';
+ if(ret.length)h+='<div class="dlg"><b>引退</b><br>'+ret.map(function(r){return '・'+esc(r.n)+'（'+r.pos+'・'+r.age+'歳／通算'+r.app+'試合'+r.g+'得点）';}).join('<br>')+'</div>';
+ if(gone.length)h+='<div class="dlg"><b>移籍・返却</b><br>'+gone.map(function(o){return '・'+esc(o.name)+'（'+esc(o.club)+(o.area==='loanback'?'へ返却':o.area==='loan'?'へ武者修行・2年で復帰':'へ')+'）';}).join('<br>')+'</div>';
+ if((O.back||[]).length)h+='<div class="dlg"><b>復帰</b><br>'+O.back.map(function(t){return '・'+esc(t)+' 武者修行から';}).join('<br>')+'</div>';
+ if((S.hofNew||[]).length)h+='<div class="dlg"><b>🏛 クラブ殿堂入り</b><br>'+S.hofNew.map(function(x){return '・'+esc(x);}).join('<br>')+'</div>';
+ var w=missingWarn();if(w.length)h+='<div class="dlg" style="color:#b3321f">⚠ '+esc(w.join('　'))+'。今オフで補強してください。</div>';
+ note(h);
+}
+var _genCands2=genCands;
+genCands=function(){_genCands2();if(!S._noDlg)setTimeout(leaveDialog,50);};
+
+/* ---- 1年目のメンバー引き直し・欠けポジションの警告 ---- */
+var _openForm=openForm;
+openForm=function(){
+ _openForm();
+ var first=S.year===1&&!S.history.length,w=missingWarn();
+ $('f-warn').innerHTML=w.length?'<div class="warn">⚠ '+esc(w.join('　'))+'。このままだと苦しい戦いになります。'+(first?'引き直しをおすすめします。':'')+'</div>':'';
+ $('btn-redraft').style.display=first?'block':'none';
+};
+function redraft(){
+ ask('この20人を解散して、もう一度ドラフトを引き直しますか？<br>1年目のあいだだけできます。','引き直す',function(){
+  S.squad.forEach(function(p){delete usedNames[p.name];});
+  S.squad=[];S.slots=[];S.passes=PASSES;show('s-draft');nextDraft();renderDraft();saveGame('draft');
+ });
+}
+
+/* ---- 順位表に戦力の星（FCRJ準拠） ---- */
+function starVal(st){return clamp((st-56)/6,.2,5);}
+function starHTML(st){var v=starVal(st);return '<span class="stars"><i style="width:'+(v/5*100)+'%"></i></span><span class="stv">'+v.toFixed(1)+'</span>';}
+tblHTML=function(rows,d){
+ var P=CFG.promo[d],n=rows.length,h='<tr><th>#</th><th>クラブ / 戦力</th><th>勝点</th><th>得</th><th>失</th><th>差</th></tr>';
+ rows.forEach(function(r,i){
+  var cls='';
+  if(P.auto&&i<P.auto)cls='up';else if(P.po&&i+1>=P.po[0]&&i+1<=P.po[1])cls='po';
+  if(d===1&&i<4)cls='up';if(P.down&&i>=n-P.down)cls='down';if(r.me)cls='me';
+  var st=r.me?userSt():CL[r.id].st;
+  h+='<tr class="'+cls+'"><td class="num">'+(i+1)+'</td><td>'+esc(r.name)+'<br>'+starHTML(st)+'</td><td class="num">'+r.pts+'</td><td class="num">'+r.gf+'</td><td class="num">'+r.ga+'</td><td class="num">'+((r.gf-r.ga)>0?'+':'')+(r.gf-r.ga)+'</td></tr>';
+ });
+ return h;
+};
+
+/* ---- 過去シーズンの試合結果 ---- */
+var _finish3=finish;
+finish=function(){_finish3();S.archive=(S.archive||[]).concat([{year:S.year,div:S.div,log:S.log.slice()}]).slice(-5);};
+function renderLogSelect(){
+ var a=S.archive||[];
+ $('r-logyear').innerHTML=a.map(function(e,i){return {e:e,i:i};}).reverse().map(function(x){return '<option value="'+x.i+'">'+x.e.year+'年目（'+divName(x.e.div)+'）</option>';}).join('');
+ $('r-logsel').style.display=a.length>1?'block':'none';renderPastLog(a.length-1);
+}
+function renderPastLog(i){
+ var e=(S.archive||[])[i];if(!e){$('r-log').innerHTML='';return;}
+ $('r-log').innerHTML=e.log.map(function(x){
+  if(x.t==='e')return '<div class="ev'+(x.bad?' bad':'')+(x.sub?' sub':'')+'">'+esc(x.text)+'</div>';
+  return '<div class="row'+(x.t==='c'?' cup':'')+'">'+logHTML(x)+'</div>';}).join('');
+}
+
+/* ---- セーブの書き出し・読み込み ---- */
+function exportSave(){
+ var raw=localStorage.getItem(SAVE_KEY);if(!raw){note('セーブデータがありません。');return;}
+ var blob=new Blob([raw],{type:'application/json'}),name='fcre-save-'+(S.year||1)+'nenme.json';
+ try{var f=new File([blob],name,{type:'application/json'});if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f]}).catch(function(){});return;}}catch(e){}
+ var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){a.remove();},1500);
+}
+function importSave(file){
+ var r=new FileReader();
+ r.onload=function(){
+  var d=null;try{d=JSON.parse(String(r.result));}catch(e){}
+  if(!d||d.v!==1||!d.S){note('セーブデータとして読み込めませんでした。');return;}
+  var go=function(){try{localStorage.setItem(SAVE_KEY,String(r.result));}catch(e){}restore();};
+  if(readSave())ask('今のセーブデータを上書きして読み込みますか？','読み込む',go);else go();
+ };
+ r.readAsText(file);
+}
+
+/* ---- 配線の追加 ---- */
+var _renderResult=renderResult;
+renderResult=function(){_renderResult();renderLogSelect();};
+var _wire=wire;
+wire=function(){
+ _wire();
+ $('btn-redraft').onclick=redraft;
+ $('r-logyear').onchange=function(){renderPastLog(+this.value);};
+ $('btn-export').onclick=exportSave;
+ $('btn-import').onclick=function(){$('i-import').click();};
+ $('i-import').onchange=function(){if(this.files&&this.files[0])importSave(this.files[0]);this.value='';};
+};
+/* ============ リーグ全体のチーム成績（FCRJのcomputeAllTS） ============ */
+function aiTeamStats(c,d){
+ var rd=divRounds(d),pr=FORM[c.form].prof,t=TAC[c.tac]||TAC.poss,cs=divClubs(d),avg=cs.reduce(function(a,x){return a+x.st;},0)/cs.length;
+ var poss=clamp(50+(c.st-avg)*.9+(t.poss-1)*60+(pr.pos-50)*.12+gauss()*1.5,30,72);
+ return {gpm:c.gf/rd,cs:c.cs!=null?c.cs:Math.round(rd*Math.exp(-c.ga/rd)*.95),poss:poss,
+  dist:(108+(pr.mid-50)*.05)*t.run+gauss()*1.2,spr:178*t.sprint*(1+(pr.side-50)*.002)+gauss()*6,pr:pr,t:t};
+}
+function computeAllTS(){
+ for(var d=1;d<=5;d++){
+  var cs=divClubs(d),sum=0;
+  cs.forEach(function(c){c.ts=aiTeamStats(c,d);sum+=c.ts.poss;});
+  var shift=(sum/cs.length-50)*.9;
+  cs.forEach(function(c){var x=c.ts;x.poss=clamp(x.poss-shift,28,74);x.pass=Math.round((195+x.poss*5.2)*x.t.pass*fm(x.pr.pos));delete x.pr;delete x.t;});
+ }
+}
+var _finish4=finish;
+finish=function(){_finish4();computeAllTS();};
+function renderTSDiv(d){
+ var rows=S.rows[d];
+ $('r-tsdivtitle').textContent='チーム成績の比較（'+divName(d)+'）';
+ var h='<tr><th>#</th><th>クラブ</th><th>得点/試合</th><th>完封</th><th>パス</th><th>支配率</th><th>走行km</th><th>スプリント</th></tr>';
+ rows.forEach(function(r,j){
+  var x,fo;
+  if(r.me){var q=S.ts||{n:0},n=q.n||1;x={gpm:q.gf/n,cs:q.cs||0,pass:Math.round((q.pass||0)/n),poss:(q.poss||0)/n,dist:(q.dist||0)/n,spr:(q.spr||0)/n};fo=S.form+'／'+TAC[S.tac].name;}
+  else{var c=CL[r.id];x=c.ts||aiTeamStats(c,d);fo=c.form+'／'+(TAC[c.tac]||TAC.poss).name;}
+  h+='<tr class="'+(r.me?'me':'')+'"><td class="num">'+(j+1)+'</td><td>'+esc(r.name)+'<br><span class="club">'+esc(fo)+'</span></td>'
+   +'<td class="num">'+x.gpm.toFixed(2)+'</td><td class="num">'+x.cs+'</td><td class="num">'+x.pass+'</td><td class="num">'+x.poss.toFixed(1)+'%</td><td class="num">'+x.dist.toFixed(1)+'</td><td class="num">'+Math.round(x.spr)+'</td></tr>';
+ });
+ $('r-tsdiv').innerHTML=h;
+}
+var _renderDivTab=renderDivTab;
+renderDivTab=function(d){_renderDivTab(d);renderTSDiv(d);};
+
+/* ============ プレーオフを1試合ずつ見せる（FCRJのrunPlayoff） ============ */
+function rankIn(d,id){var r=S.rows[d];for(var i=0;i<r.length;i++)if(r[i].id===id)return i+1;return 0;}
+function poHTML(d,label,m){
+ var hw=m.win===m.h,rh=rankIn(d,m.h),ra=rankIn(d,m.a);
+ var note=m.note?m.note.replace('引き分けは上位が勝ち上がり',rh+'位の'+nameOf(m.h)+'が上位のため勝ち上がり'):(m.pk?'PK戦の末、'+nameOf(m.win)+'が勝ち上がり':nameOf(m.win)+'が勝ち上がり');
+ return '<div class="pomatch"><h3>'+esc(label)+(m.legs===2?'（2試合合計）':'')+'</h3><div class="line">'
+  +'<span class="r'+(hw?' win':'')+'">'+esc(nameOf(m.h))+'<span class="rk">'+rh+'位</span></span>'
+  +'<span class="sc">'+m.th+' - '+m.ta+'</span>'
+  +'<span class="'+(hw?'':'win')+'">'+esc(nameOf(m.a))+'<span class="rk">'+ra+'位</span></span></div>'
+  +'<div class="note">'+esc(note)+'</div></div>';
+}
+function userInPO(){var po=S.po&&S.po[S.div];if(!po)return false;return po.ms.some(function(x){return x[1].h==='ME'||x[1].a==='ME';});}
+function runPlayoff(){
+ var d=S.div,po=S.po[d],i=0;
+ $('po-title').textContent=divName(d-1)+'昇格プレーオフ';
+ $('po-desc').textContent=d===2?'3〜8位の6クラブで争います。5位対8位・6位対7位の一発勝負「エリミネーター」の勝者が、3位・4位と2試合制の準決勝へ。決勝は一発勝負です。'
+  :'準決勝は2試合制、決勝は一発勝負です。2試合合計で並んだ場合はPK戦で決着します。';
+ $('po-log').innerHTML='';$('btn-po-next').style.display='none';
+ setTop(divName(d)+' '+S.res.rank+'位 / プレーオフ');show('s-po');
+ (function step(){
+  if(i>=po.ms.length){$('btn-po-next').style.display='block';return;}
+  $('po-log').insertAdjacentHTML('beforeend',poHTML(d,po.ms[i][0],po.ms[i][1]));i++;setTimeout(step,1200);
+ })();
+}
+endSeason=function(){finish();saveGame('result');if(userInPO())runPlayoff();else renderResult();};
+/* 結果画面のプレーオフ欄もこの表示に */
+var _renderDivTab2=renderDivTab;
+renderDivTab=function(d){
+ _renderDivTab2(d);
+ var po=S.po[d];
+ if(po)$('r-po').innerHTML=po.ms.map(function(x){return poHTML(d,x[0],x[1]);}).join('')+'<p class="sub">昇格：<b style="color:var(--amber)">'+esc(nameOf(po.win))+'</b></p>';
+};
+var _wire2=wire;
+wire=function(){_wire2();$('btn-po-next').onclick=renderResult;};
 
 wire();initTitle();
 </script>
