@@ -21,6 +21,7 @@
 <link rel="apple-touch-icon" href="fcre-icon.png">
 <link rel="icon" type="image/png" href="fcre-icon.png">
 <meta name="apple-mobile-web-app-title" content="FCRE">
+<script data-goatcounter="https://fcre.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;700;900&display=swap" rel="stylesheet">
@@ -180,6 +181,11 @@ select option{color:#000;}
 .pomatch .rk{font-family:"Oswald",sans-serif;font-size:10.5px;color:rgba(242,245,238,.55);display:block;}
 .pomatch .win{font-weight:900;color:var(--amber);}.pomatch .note{font-size:12px;color:rgba(242,245,238,.62);margin-top:7px;}
 #s-po .pomatch{animation:deal .32s ease-out;}@keyframes deal{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+.trust{display:grid;grid-template-columns:96px 1fr 30px;gap:9px;align-items:center;margin-top:12px;font-size:12px;}
+.trust .bar{height:8px;background:rgba(0,0,0,.3);border-radius:2px;overflow:hidden;}.trust .bar i{display:block;height:100%;}
+.trust u{text-decoration:none;font-family:"Oswald",sans-serif;font-weight:700;text-align:right;}
+.savewarn{position:fixed;left:10px;right:10px;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:90;background:#b3321f;color:#fff;border-radius:6px;padding:12px 14px;font-size:13.5px;line-height:1.6;}
+.savewarn[hidden]{display:none;}.savewarn b{display:block;font-size:11px;opacity:.8;margin-top:4px;}
 .growth{margin:10px 0 0;padding:0;list-style:none;font-size:13px;}
 .growth li{padding:6px 0;border-bottom:1px solid rgba(242,245,238,.12);}
 .up{color:var(--amber);}.dn{color:#F09A8D;}
@@ -222,7 +228,7 @@ select option{color:#000;}
   <li>4部から始まり、3部・2部を経て<b>プレミア優勝</b>を目指す</li>
   <li>リーグ戦と並行して<b>FA杯</b>と<b>カラバオ杯</b>を戦う。プレミア上位なら<b>CL・EL</b>へ</li>
   <li>オフには獲得候補・<b>アカデミー</b>・<b>レンタル</b>から補強する</li>
-  <li><b>4部から降格すると解任</b>。途中で閉じても自動でセーブされます</li>
+  <li>毎年の<b>目標</b>に届かずフロントの信頼を失うと<b>解任</b>。<b>4部から降格しても即解任</b>。途中で閉じても自動でセーブされます</li>
  </ol>
  <div id="t-cont" style="display:none"><button class="btn cta" id="btn-continue">つづきから</button><p class="sub" id="t-contsub"></p></div>
  <button class="btn cta" id="btn-start">4部から始める</button>
@@ -240,6 +246,7 @@ select option{color:#000;}
 <section class="screen" id="s-form">
  <div class="sec">
   <h2 id="f-title">布陣と戦術</h2>
+  <div id="f-target"></div>
   <div id="f-name"><label class="fld">クラブ名<input type="text" id="i-team" maxlength="14" value="あなたのクラブ" autocomplete="off"></label></div>
   <label class="fld">フォーメーション<select id="f-form"></select></label>
   <label class="fld">基本戦術<select id="f-tac"></select></label>
@@ -258,7 +265,7 @@ select option{color:#000;}
 <section class="screen" id="s-season">
  <div class="sec">
   <h2 id="se-title">シーズン</h2>
-  <div class="scorebar"><div><b id="se-pts">0</b><s>勝点</s></div><div><b id="se-rec">0-0-0</b><s>勝分敗</s></div><div><b id="se-gd">0</b><s>得失点</s></div><div><b id="se-rank">–</b><s>順位</s></div></div>
+  <p class="sub" id="se-target"></p><div class="scorebar"><div><b id="se-pts">0</b><s>勝点</s></div><div><b id="se-rec">0-0-0</b><s>勝分敗</s></div><div><b id="se-gd">0</b><s>得失点</s></div><div><b id="se-rank">–</b><s>順位</s></div></div>
   <div class="log" id="se-log"></div>
   <button class="btn cta" id="btn-skip">最後まで飛ばす</button>
  </div>
@@ -271,14 +278,15 @@ select option{color:#000;}
 
 <section class="screen" id="s-result">
  <div class="verdict" id="r-verdict"></div>
- <div class="sec"><h2>順位表</h2><div class="chips" id="r-divtabs"></div><div class="overflow"><table class="tbl" id="r-table"></table></div>
-  <h3 class="subh" id="r-tsdivtitle">チーム成績の比較</h3><div class="overflow"><table class="tbl" id="r-tsdiv"></table></div>
-  <h3 class="subh">プレーオフ</h3><div id="r-po"></div>
-  <h3 class="subh">個人ランキング</h3><div class="chips" id="r-rktabs"></div><table class="tbl" id="r-scorers"></table></div>
- <div class="sec"><h2>ベストイレブン</h2><div class="chips" id="r-b11tabs"></div><div id="r-b11"></div></div>
- <div class="sec"><h2>カップ戦・欧州</h2><div class="chips" id="r-cuptabs"></div><div id="r-cup"></div></div>
+ <div id="r-trust"></div>
  <div class="sec"><h2>チーム成績</h2><p class="sub" id="r-setup"></p><div class="tstats" id="r-tstats"></div></div>
- <div class="sec"><h2>選手成績</h2><div class="chips" id="r-sqtabs"></div><div class="overflow"><table class="tbl" id="r-squad"></table></div></div>
+ <div class="sec"><h2 id="r-tabletitle">順位表</h2><div class="chips" id="r-divtabs"></div><div class="overflow"><table class="tbl" id="r-table"></table></div>
+  <h3 class="subh" id="r-tsdivtitle">チーム成績の比較</h3><div class="overflow"><table class="tbl" id="r-tsdiv"></table></div></div>
+ <div class="sec"><h2>カップ戦・欧州</h2><div class="chips" id="r-cuptabs"></div><div id="r-cup"></div></div>
+ <div class="sec"><h2 id="r-potitle">昇格プレーオフ</h2><div id="r-po"></div></div>
+ <div class="sec"><h2 id="r-sctitle">個人ランキング</h2><div class="chips" id="r-rktabs"></div><div class="overflow"><table class="tbl" id="r-scorers"></table></div></div>
+ <div class="sec"><h2>ベストイレブン</h2><div class="chips" id="r-b11tabs"></div><div id="r-b11"></div></div>
+ <div class="sec"><h2>選手成績</h2><p class="sub" style="margin:0">選手をタップすると、詳細と自慢カードが見られます。</p><div class="chips" id="r-sqtabs"></div><div class="overflow"><table class="tbl" id="r-squad"></table></div></div>
  <div class="sec"><h2>試合結果</h2><label class="fld" id="r-logsel" style="display:none">シーズン<select id="r-logyear"></select></label><div class="log" id="r-log" style="max-height:52vh"></div></div>
  <div class="sec"><h2>クラブの歩み</h2><table class="tbl" id="r-history"></table></div>
  <div class="sec"><h2>クラブの殿堂</h2><div id="r-hof"></div></div>
@@ -291,7 +299,7 @@ select option{color:#000;}
 </section>
 
 <section class="screen" id="s-off">
- <div class="sec"><h2 id="o-title">オフシーズン</h2><div id="o-summary"></div></div>
+ <div class="sec"><h2 id="o-title">オフシーズン</h2><div id="o-target"></div><div id="o-summary"></div></div>
  <div class="sec" id="o-offer-sec" style="display:none"><h2>移籍オファー・レンタル満了</h2><p class="sub">残留交渉をするか、送り出すかを選びます。送り出すと、見返りで獲得候補の質が上がります。交渉に失敗すると見返りは半分です。</p><div id="o-offers"></div>
   <p class="sub" id="o-wait" style="color:var(--amber)">すべてのオファーに答えると、獲得候補が届きます。</p></div>
  <div class="sec"><h2>現有戦力</h2><p class="sub" id="o-squadsub"></p><ul class="roster" id="o-squad"></ul></div>
@@ -320,13 +328,14 @@ select option{color:#000;}
  <div id="pd-body"></div><button class="btn cta" id="pd-brag">この選手を自慢する</button>
  <div id="pd-share" style="display:none"><img id="pd-card" class="cardimg" alt="カード"><div class="btnrow"><button class="btn" id="pd-shareimg">画像付きでシェア</button><button class="btn ghost" id="pd-saveimg">画像を保存</button></div><div class="shareout" id="pd-text"></div></div>
 </div></div>
+<div class="savewarn" id="savewarn" hidden>⚠ 保存できませんでした。端末の保存容量がいっぱいの可能性があります。画面下の「セーブを書き出す」でファイルに保存してください。<b>（タップで閉じる）</b></div>
 <div class="cm" id="cm" hidden><div class="cm-box"><p id="cm-msg"></p><div class="btnrow"><button class="btn ghost small" id="cm-no">やめる</button><button class="btn small" id="cm-yes">OK</button></div></div></div>
 
 <div class="gfoot">
  <div class="btnrow" id="gf-game" style="display:none"><button class="btn ghost small" id="btn-export">セーブを書き出す</button><button class="btn ghost small danger" id="btn-resign">監督辞任</button></div>
  <a class="btn ghost small" href="https://x.com/kanasama_united" target="_blank" rel="noopener" style="margin-top:10px">感想・不具合報告はこちら（X @kanasama_united）</a>
  <p class="disc">このゲームはフィクションです。登場するクラブ・団体・人物の名称は架空のものであり、実在のものとは関係ありません。</p>
- <p class="ver">Football Champion Road E　v0.4.1</p>
+ <p class="ver">Football Champion Road E　v0.4.4</p>
 </div>
 </div>
 <script>
@@ -589,7 +598,7 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return
 function shuffle(a){for(var i=a.length-1;i>0;i--){var r=rnd(i+1),t=a[i];a[i]=a[r];a[r]=t;}return a;}
 function pois(l){if(l<=0)return 0;var L=Math.exp(-l),k=0,p=1;do{k++;p*=Math.random();}while(p>L);return k-1;}
 function coreOf(star){return 59+6*star;}
-var VERSION='v0.4.1',SAVE_KEY='fcre-save-v1';
+var VERSION='v0.4.4',SAVE_KEY='fcre-save-v1';
 var DIVJ={1:'プレミア',2:'2部',3:'3部',4:'4部',5:'ナショナルリーグ'};
 function divName(d){return DIVJ[d];}
 
@@ -2568,6 +2577,187 @@ renderDivTab=function(d){
 };
 var _wire2=wire;
 wire=function(){_wire2();$('btn-po-next').onclick=renderResult;};
+/* ============ 目標とフロントの信頼度（FCRJ準拠） ============ */
+var TGJ={win:'優勝',top:'上位',mid:'中位',stay:'残留',promo:'即昇格'};
+var TGL={win:4,top:3,mid:2,stay:1};
+function topLine(d){return d===1?4:(CFG.promo[d].po?CFG.promo[d].po[1]:3);}
+function tgDesc(t,d){
+ d=d||S.div;
+ if(t==='win')return '優勝';
+ if(t==='top')return d===1?'4位以内（CL出場圏）':topLine(d)+'位以内（昇格争い）';
+ if(t==='mid')return '上位半分';
+ if(t==='stay')return d===4?'降格圏の回避（降格は即解任）':'降格圏の回避';
+ return 'プレーオフ圏以上で昇格';
+}
+function rankLevel(rank,n,moved,d){
+ if(rank===1)return 4;
+ if(rank<=topLine(d)||moved===-1)return 3;
+ if(rank<=Math.ceil(n/2))return 2;
+ if(rank<=n-(CFG.promo[d].down||0))return 1;
+ return 0;
+}
+function evalTarget(t,rank,n,moved,d){
+ if(t==='promo'){if(moved===-1)return rank===1?1:0;return rank<=topLine(d)?-1:-2;}
+ return clamp(rankLevel(rank,n,moved,d)-TGL[t],-2,1);
+}
+function nextTargetOf(moved,rank,n,d){
+ if(moved===-1)return rank===1?'mid':'stay';
+ if(moved===1)return 'promo';
+ if(d===1&&rank===1)return 'win';
+ if(rank<=topLine(d))return 'top';
+ return 'stay';
+}
+function trustBar(){
+ var t=S.trust==null?60:S.trust,c=t<=35?'#F09A8D':t<=60?'#FFC21A':'#7BE0A0';
+ return '<div class="trust"><span>フロントの信頼</span><div class="bar"><i style="width:'+t+'%;background:'+c+'"></i></div><u>'+t+'</u></div>';
+}
+function targetHTML(label){
+ var t=S.target||'mid';
+ return '<p class="sub" style="margin:10px 0 0">'+label+'の目標：<b style="color:var(--amber)">'+TGJ[t]+'</b>（'+tgDesc(t)+'）</p>'+trustBar()
+  +((S.trust!=null&&S.trust<=35)?'<div class="warn">フロントの信頼が揺らいでいます。'+label+'、目標に届かなければ解任の可能性があります。</div>':'');
+}
+
+/* 開始時の初期値 */
+var _startNewT=startNew;
+startNew=function(){_startNewT();S.trust=60;S.target='mid';saveGame('draft');};
+
+/* シーズン終了時の評価 */
+var _finishT=finish;
+finish=function(){
+ _finishT();
+ if(S.trust==null){S.trust=60;S.target=S.target||'mid';}
+ var R=S.res,d=S.div,tg=S.target||'mid',ev=evalTarget(tg,R.rank,R.n,R.moved,d);
+ var dl=ev>=1?25:ev===0?15:ev===-1?-30:-45;
+ var cups=[S.cups.fa,S.cups.lc];
+ cups.forEach(function(c){var r=cupResult(c);if(r==='優勝')dl+=10;else if(r==='準優勝')dl+=5;});
+ ['cl','el'].forEach(function(k){var r=euroResult(S.euro[k]);if(/優勝/.test(r))dl+=20;else if(/ベスト4|準優勝/.test(r))dl+=10;});
+ S.trust=clamp(S.trust+dl,0,100);
+ S.lastEval={tg:tg,ev:ev,dl:dl};
+ var h=S.history[S.history.length-1];if(h){h.tg=tg;h.ok=ev>=0;}
+ if(S.trust<=0&&!S.fired){S.fired=true;S.firedByTrust=true;}
+ S.nextTarget=nextTargetOf(R.moved,R.rank,R.n,d);
+};
+
+/* 画面への表示 */
+var _renderResultT=renderResult;
+renderResult=function(){
+ _renderResultT();
+ var le=S.lastEval;if(!le)return;
+ $('r-verdict').insertAdjacentHTML('beforeend','<p class="tgline">今季の目標：'+TGJ[le.tg]+'（'+tgDesc(le.tg)+'）→ '+(le.ev>=0?'<b style="color:#0a6b3a">達成</b>':'<b style="color:#b3321f">未達</b>')+'　信頼度 '+(le.dl>0?'+':'')+le.dl+'</p>'
+  +(S.firedByTrust?'<p class="tgline" style="color:#b3321f;font-weight:900">フロントの信頼を失い、監督を解任されました。</p>':''));
+ $('r-trust').innerHTML=trustBar();
+ if(S.fired)$('btn-off').textContent='解任会見へ';
+ var rows=$('r-history').querySelectorAll('tr');
+ S.history.forEach(function(e,i){var tr=rows[i+1];if(tr&&e.tg)tr.insertAdjacentHTML('beforeend','<td style="white-space:nowrap">'+TGJ[e.tg]+(e.ok?'○':'×')+'</td>');});
+ if(rows[0])rows[0].insertAdjacentHTML('beforeend','<th>目標</th>');
+};
+var _openFormT=openForm;
+openForm=function(){_openFormT();$('f-target').innerHTML=targetHTML('今季');};
+var _updateBarT=updateBar;
+updateBar=function(){_updateBarT();$('se-target').textContent='今季の目標：'+TGJ[S.target||'mid']+'（'+tgDesc(S.target||'mid')+'）　信頼度 '+(S.trust==null?60:S.trust);};
+var _offLogicT=openOffseasonLogic;
+openOffseasonLogic=function(){_offLogicT();S.target=S.nextTarget||'stay';};
+var _renderOffT=renderOff;
+renderOff=function(){_renderOffT();$('o-target').innerHTML=targetHTML('来季');};
+var _showByeT=showBye;
+showBye=function(kind){
+ _showByeT(kind);
+ if(kind==='fired')$('b-verdict').insertAdjacentHTML('beforeend','<p>'+(S.firedByTrust?'フロントの信頼を取り戻せませんでした。次のクラブで雪辱を。':'ナショナルリーグへの降格が決まり、クラブを去ることになりました。')+'</p>');
+};
+/* ============ 結果画面をFCRJの構成に：見出し・個人タイトルの表示 ============ */
+var _renderDivTabF=renderDivTab;
+renderDivTab=function(d){
+ _renderDivTabF(d);
+ var dn=divName(d);
+ $('r-tabletitle').textContent='順位表';
+ $('r-potitle').textContent=d===1?'昇格プレーオフ':divName(d-1)+'昇格プレーオフ（'+dn+'）';
+ if(d===1)$('r-po').innerHTML='<p class="sub" style="margin:0">プレミアには昇格プレーオフはありません。下位3クラブが2部へ降格します。</p>';
+ else if(!S.po[d])$('r-po').innerHTML='<p class="sub" style="margin:0">記録がありません。</p>';
+ $('r-sctitle').textContent='個人ランキング（'+dn+'）';
+ renderRank();
+};
+var _renderResultF=renderResult;
+renderResult=function(){
+ _renderResultF();
+ var A=(S.awards||[]).map(function(a){var p=pById(a.pid);return p?divName(a.d)+AWJ[a.k][0]+'：'+p.name+(a.k==='mvp'?'':'（'+a.v+AWJ[a.k][1]+'）'):'';}).filter(Boolean);
+ if(A.length)$('r-verdict').insertAdjacentHTML('beforeend','<p class="tgline">🏅 '+esc(A.join('　'))+'</p>');
+};
+/* 号外カード・シェア文の最多得点に（得点王）を付ける */
+var _drawSeasonCardF=drawSeasonCard;
+drawSeasonCard=function(){
+ var top=S.squad.slice().sort(function(a,b){return b.s.g-a.s.g;})[0],isK=top&&(S.awards||[]).some(function(a){return a.k==='goal'&&a.pid===top.id;});
+ if(isK){var o=top.name;top.name=o+'（得点王）';try{return _drawSeasonCardF();}finally{top.name=o;}}
+ return _drawSeasonCardF();
+};
+/* ---- ベストイレブンの号外（FCRJのdrawB11Card） ---- */
+function drawB11Card(d){
+ var B=S.b11[d],cv=newCanvas(),x=cv.getContext('2d'),i;
+ drawBG(x,'acle','even');
+ var X0=34,Y0=28,PW=560,PH=619;
+ x.fillStyle='#0A5233';x.fillRect(X0,Y0,PW,PH);x.fillStyle='rgba(255,255,255,.05)';
+ for(i=0;i<PW;i+=56)for(var j=0;j<PH;j+=56)if(((i+j)/56)%2)x.fillRect(X0+i,Y0+j,Math.min(56,PW-i),Math.min(56,PH-j));
+ x.strokeStyle='rgba(242,245,238,.5)';x.lineWidth=2;x.strokeRect(X0,Y0,PW,PH);x.beginPath();x.moveTo(X0,Y0+PH/2);x.lineTo(X0+PW,Y0+PH/2);x.stroke();
+ x.textAlign='center';x.textBaseline='middle';
+ [[B.fw,.14],[B.mf,.40],[B.df,.66],[B.gk,.89]].forEach(function(rw){
+  var L=rw[0],y=Y0+PH*rw[1];
+  L.forEach(function(pl,k){var cx=X0+PW*(k+1)/(L.length+1);
+   x.beginPath();x.arc(cx,y-14,13,0,Math.PI*2);x.fillStyle=pl.me?'#FFC21A':'#F2F5EE';x.fill();
+   x.fillStyle='#fff';x.shadowColor='rgba(0,0,0,.85)';x.shadowBlur=5;
+   var nm=shortName(pl.n);fitFont(x,nm,PW/(L.length+.4),17,'700',FJ);x.fillText(nm,cx,y+14);
+   x.fillStyle='rgba(242,245,238,.75)';fitFont(x,pl.club,PW/(L.length+.4),12,'700',FJ);x.fillText(pl.club,cx,y+34);x.shadowBlur=0;});
+ });
+ var R=630;x.textAlign='left';x.textBaseline='alphabetic';
+ x.fillStyle='#FFC21A';x.font='500 20px '+FO;x.fillText('FOOTBALL CHAMPION ROAD E　/　SEASON '+S.year,R,64);
+ x.fillStyle='rgba(242,245,238,.9)';x.font='900 30px '+FJ;x.fillText('号外　シーズンの顔ぶれ',R,118);
+ var t=divName(d)+'ベストイレブン';fitFont(x,t,540,60,'900',FJ);x.fillStyle='#FFC21A';x.fillText(t,R,196);
+ x.fillStyle='#F2F5EE';x.font='900 28px '+FJ;x.fillText('MVP',R,266);
+ if(B.mvp){fitFont(x,B.mvp.n,540,44,'900',FJ);x.fillText(B.mvp.n,R,322);x.font='700 24px '+FJ;x.fillStyle='rgba(242,245,238,.85)';x.fillText(B.mvp.club,R,360);}
+ var mine=B.fw.concat(B.mf,B.df,B.gk).filter(function(z){return z.me;}).length;
+ x.fillStyle='#FFC21A';x.font='900 30px '+FJ;x.fillText(S.teamName+'から'+mine+'人選出',R,440);
+ stamp(x);return cv;
+}
+function showB11Card(){
+ var d=S.div,B=S.b11&&S.b11[d];if(!B)return;
+ var mine=B.fw.concat(B.mf,B.df,B.gk).filter(function(z){return z.me;});
+ showCard(function(){return drawB11Card(d);},'【号外】'+divName(d)+'ベストイレブン発表！\nMVPは'+(B.mvp?B.mvp.n+'（'+B.mvp.club+'）':'—')+'\n'+S.teamName+'から'+mine.length+'人選出'+(mine.length?'：'+mine.map(function(z){return shortName(z.n);}).join('、'):'')+'\n'+HASHTAG,
+  '<div class="pdsec"><h3>'+divName(d)+'ベストイレブン</h3><p>'+S.teamName+'から'+mine.length+'人選出</p></div>');
+}
+var _renderSeasonCardF=renderSeasonCard;
+renderSeasonCard=function(){
+ _renderSeasonCardF();
+ if(S.b11&&S.b11[S.div])$('r-awards').insertAdjacentHTML('beforeend','<button class="btn ghost small" data-b11share="1" style="margin-top:8px">📋 '+divName(S.div)+'ベストイレブンの号外</button>');
+};
+/* ---- 保存できなかったときの警告（FCRJのsavewarn） ---- */
+var _saveGameF=saveGame;
+saveGame=function(ph){var ok=_saveGameF(ph);if(!ok&&!S._warned){S._warned=1;var el=$('savewarn');if(el)el.hidden=false;}return ok;};
+var _wireF=wire;
+wire=function(){
+ _wireF();
+ $('r-awards').onclick=function(e){if(e.target.closest('[data-b11share]')){showB11Card();return;}var b=e.target.closest('[data-award]');if(b)showAward(+b.getAttribute('data-award'));};
+ $('savewarn').onclick=function(){this.hidden=true;};
+};
+/* ============ アクセス解析（GoatCounter：fcre） ============ */
+function gc(ev){try{if(window.goatcounter&&window.goatcounter.count)window.goatcounter.count({path:ev,title:ev,event:true});}catch(e){}}
+function yrBucket(){var y=S.year||1;return y===1?'y1':y<=3?'y2-3':y<=7?'y4-7':'y8+';}
+(function(){
+ var w=function(name,fn){var o=window[name];window[name]=function(){fn.apply(null,arguments);return o.apply(null,arguments);};};
+ var after=function(name,fn){var o=window[name];window[name]=function(){var r=o.apply(null,arguments);fn.apply(null,arguments);return r;};};
+ w('startNew',function(){gc('start');});
+ after('finish',function(){
+  gc('season-end');gc('season-end-'+divName(S.div));
+  if(S.res.moved===-1)gc('promote-to-'+divName(S.div-1));
+  S.res.titles.forEach(function(t){gc('title-'+t);});
+  if(S.fired){gc('fired');gc('fired-'+yrBucket());}
+ });
+ w('redraft',function(){gc('redraft');});
+ w('exportSave',function(){gc('export');});
+ w('shareSeason',function(save){gc(save?'save-season-image':'share-season');});
+ w('sharePlayer',function(save){gc((save?'save-':'share-')+'card');});
+ w('bragPlayer',function(){gc('brag-player');});
+ w('resolveOffer',function(i,act){var o=S.offers&&S.offers[i];if(o&&o.state==='open')gc((o.area==='loanback'?'loanback-':'offer-')+act);});
+ w('commitOffseason',function(){(S.picked||[]).forEach(function(i){var p=S.cands[i];if(p&&p.lgd!=null)gc('legend-signed');if(p&&p.acad)gc('academy-signed');});if((S.loanPicked||[]).length)gc('loan-in');});
+ var ob=window.showBye;window.showBye=function(kind){if(kind==='resign'){gc('resign');gc('resign-'+yrBucket());}return ob.apply(null,arguments);};
+})();
 
 wire();initTitle();
 </script>
