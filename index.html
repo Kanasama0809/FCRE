@@ -335,7 +335,7 @@ select option{color:#000;}
  <div class="btnrow" id="gf-game" style="display:none"><button class="btn ghost small" id="btn-export">セーブを書き出す</button><button class="btn ghost small danger" id="btn-resign">監督辞任</button></div>
  <a class="btn ghost small" href="https://x.com/kanasama_united" target="_blank" rel="noopener" style="margin-top:10px">感想・不具合報告はこちら（X @kanasama_united）</a>
  <p class="disc">このゲームはフィクションです。登場するクラブ・団体・人物の名称は架空のものであり、実在のものとは関係ありません。</p>
- <p class="ver">Football Champion Road E　v0.4.4</p>
+ <p class="ver">Football Champion Road E　v0.4.6</p>
 </div>
 </div>
 <script>
@@ -598,7 +598,7 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return
 function shuffle(a){for(var i=a.length-1;i>0;i--){var r=rnd(i+1),t=a[i];a[i]=a[r];a[r]=t;}return a;}
 function pois(l){if(l<=0)return 0;var L=Math.exp(-l),k=0,p=1;do{k++;p*=Math.random();}while(p>L);return k-1;}
 function coreOf(star){return 59+6*star;}
-var VERSION='v0.4.4',SAVE_KEY='fcre-save-v1';
+var VERSION='v0.4.6',SAVE_KEY='fcre-save-v1';
 var DIVJ={1:'プレミア',2:'2部',3:'3部',4:'4部',5:'ナショナルリーグ'};
 function divName(d){return DIVJ[d];}
 
@@ -2152,9 +2152,10 @@ function renderCupTab(k){
  }else{
   var e=S.euro[k];h+='<div class="cupchamp">'+e.name+'優勝：<b>'+esc(nameOf(e.champ))+'</b>'+(e.champ==='ME'?'　🏆':'')+'</div>';
   var my=euroResult(e);if(my)h+='<p class="sub">あなたの成績：'+esc(my)+'</p>';
-  if(e.tbl){h+='<h3 class="subh">リーグフェーズ上位</h3><table class="tbl mini"><tr><th>#</th><th>クラブ</th><th>点</th></tr>';
-   e.tbl.slice(0,12).forEach(function(r,i){var c=CL[r.id];h+='<tr class="'+(r.id==='ME'?'me':'')+(i===7?' cut':'')+'"><td class="num">'+(i+1)+'</td><td>'+esc(nameOf(r.id))+(c&&c.cc!=='ENG'?' <span class="club">'+c.cc+'</span>':'')+'</td><td class="num">'+r.pts+'</td></tr>';});
-   h+='</table>';}
+  if(e.tbl){h+='<h3 class="subh">リーグフェーズ順位</h3><p class="sub">1〜8位はラウンド16へ直行、9〜24位はプレーオフ、25位以下は敗退です。</p><div class="overflow"><table class="tbl mini"><tr><th>#</th><th>クラブ</th><th>勝点</th><th>得</th><th>失</th><th>差</th></tr>';
+   e.tbl.forEach(function(r,i){var c=CL[r.id],cls=(r.id==='ME'?'me':'')+(i===7||i===23?' cut':'')+(i<8?' up':i<24?' po':' down');
+    h+='<tr class="'+cls+'"><td class="num">'+(i+1)+'</td><td>'+esc(nameOf(r.id))+(c&&c.cc!=='ENG'?' <span class="club">'+c.cc+'</span>':'')+'</td><td class="num">'+r.pts+'</td><td class="num">'+r.gf+'</td><td class="num">'+r.ga+'</td><td class="num">'+((r.gf-r.ga)>0?'+':'')+(r.gf-r.ga)+'</td></tr>';});
+   h+='</table></div>';}
   e.ko.forEach(function(r){if(r.n!=='プレーオフ')r.ms.forEach(function(m){h+=koRow(r.n,m);});});
  }
  $('r-cup').innerHTML=h;
@@ -2735,6 +2736,24 @@ wire=function(){
  _wireF();
  $('r-awards').onclick=function(e){if(e.target.closest('[data-b11share]')){showB11Card();return;}var b=e.target.closest('[data-award]');if(b)showAward(+b.getAttribute('data-award'));};
  $('savewarn').onclick=function(){this.hidden=true;};
+};
+/* ---- 欧州大会タブに「あなたのクラブの戦い」（プレーオフ含む）を表示 ---- */
+var _renderCupTabF=renderCupTab;
+renderCupTab=function(k){
+ _renderCupTabF(k);
+ if(k!=='cl'&&k!=='el')return;
+ var e=S.euro[k],path='';
+ e.ko.forEach(function(r){r.ms.forEach(function(m){if(m.h==='ME'||m.a==='ME')path+=koRow(r.n,m);});});
+ if(e.ids.indexOf('ME')>-1){
+  var rk=0;if(e.tbl)e.tbl.forEach(function(r,i){if(r.id==='ME')rk=i+1;});
+  var lead=rk?'<p class="sub">リーグフェーズ'+rk+'位'+(rk<=8?'（ラウンド16へ直行）':rk<=24?'（9〜24位はプレーオフへ）':'（敗退）')+'</p>':'';
+  var h3=$('r-cup').querySelector('.subh');
+  var box=document.createElement('div');box.innerHTML='<h3 class="subh">あなたのクラブの戦い</h3>'+lead+(path||'');
+  if(h3)$('r-cup').insertBefore(box,h3);else $('r-cup').appendChild(box);
+ }
+ var h='';e.ko.forEach(function(r){if(r.n==='プレーオフ')r.ms.forEach(function(m){h+=koRow(r.n,m);});});
+ if(h){var pb=document.createElement('div');pb.innerHTML='<h3 class="subh">プレーオフ（9〜24位）</h3>'+h;
+  var first=$('r-cup').querySelectorAll('.cuprow');var lastBox=$('r-cup');lastBox.appendChild(pb);}
 };
 /* ============ アクセス解析（GoatCounter：fcre） ============ */
 function gc(ev){try{if(window.goatcounter&&window.goatcounter.count)window.goatcounter.count({path:ev,title:ev,event:true});}catch(e){}}
